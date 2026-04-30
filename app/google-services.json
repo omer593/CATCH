@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "796049738847",
+    "project_id": "catch-35cf4",
+    "storage_bucket": "catch-35cf4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:796049738847:android:312681b9379b4c88eb9fea",
+        "android_client_info": {
+          "package_name": "com.example.acatch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAin8Nz34rc0YI8o81T90i9_KEEn-D6x5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
