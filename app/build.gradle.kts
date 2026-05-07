@@ -45,4 +45,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.firebase:firebase-firestore:24.10.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("com.cloudinary:cloudinary-android:2.3.1")
+    implementation ("com.squareup.picasso:picasso:2.8")
+
 }

@@ -1,6 +1,7 @@
 package com.example.acatch;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
@@ -10,12 +11,30 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.UploadCallback;
+import com.cloudinary.android.callback.ErrorInfo;
+
+import com.squareup.picasso.Picasso;
+
 import java.util.HashMap;
 import java.util.Map;
 
+import android.os.Build;
+
 public class UserProfileActivity extends AppCompatActivity {
 
-    EditText nameText, ageText, genderText, instagramText, facebookText, linkedinText, twitterText;
+    EditText nameText, ageText, genderText;
+
+    TextView instagramText, facebookText, linkedinText, twitterText;
+
+    EditText instagramEdit, facebookEdit, linkedinEdit, twitterEdit;
+
+    ImageView profileImage;
+    Button uploadImageBtn;
+
+    Uri imageUri;
+
     Button editBtn, saveBtn;
 
     Button btnSettings, btnNearby, btnLogout, btnProfile;
@@ -23,13 +42,17 @@ public class UserProfileActivity extends AppCompatActivity {
     FirebaseFirestore db;
     FirebaseAuth auth;
 
-    String userId; // 🔥 חשוב
+    String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(new String[]{android.Manifest.permission.READ_MEDIA_IMAGES}, 1);
+        } else {
+            requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
         // 🔗 חיבורים
         nameText = findViewById(R.id.nameText);
         ageText = findViewById(R.id.ageText);
@@ -40,6 +63,11 @@ public class UserProfileActivity extends AppCompatActivity {
         linkedinText = findViewById(R.id.linkedinText);
         twitterText = findViewById(R.id.twitterText);
 
+        instagramEdit = findViewById(R.id.instagramEdit);
+        facebookEdit = findViewById(R.id.facebookEdit);
+        linkedinEdit = findViewById(R.id.linkedinEdit);
+        twitterEdit = findViewById(R.id.twitterEdit);
+
         editBtn = findViewById(R.id.editBtn);
         saveBtn = findViewById(R.id.saveBtn);
 
@@ -48,37 +76,59 @@ public class UserProfileActivity extends AppCompatActivity {
         btnLogout = findViewById(R.id.btnLogout);
         btnProfile = findViewById(R.id.btnProfile);
 
+        profileImage = findViewById(R.id.profileImage);
+        uploadImageBtn = findViewById(R.id.uploadImageBtn);
+
+        // 📸 בחירת תמונה
+        uploadImageBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent, 1);
+        });
+
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        // 🔥 קבלת userId מהמסך הקודם
+        // 🔥 userId
         userId = getIntent().getStringExtra("userId");
-
-        // אם לא הגיע → זה הפרופיל שלי
         if (userId == null) {
             userId = auth.getCurrentUser().getUid();
         }
 
-        // 🔥 בדיקה אם זה הפרופיל שלי
+        // 🔥 האם זה הפרופיל שלי
         String myId = auth.getCurrentUser().getUid();
         boolean isMyProfile = userId.equals(myId);
 
-        // ❌ אם זה לא שלי → אין עריכה
         if (!isMyProfile) {
             editBtn.setVisibility(View.GONE);
             saveBtn.setVisibility(View.GONE);
+            uploadImageBtn.setVisibility(View.GONE);
         }
 
-        // 🔄 טעינת נתונים
+        // 🔥 Cloudinary init (פעם אחת בלבד)
+        Map config = new HashMap();
+        config.put("cloud_name", "dzo0vdcwk");
+        config.put("api_key", "738559658125758");
+        config.put("api_secret", "HzfIy84xxSISHleEV9kC4oJVW_4");
+        MediaManager.init(this, config);
+
         loadUserData();
 
         // ✏️ Edit
         editBtn.setOnClickListener(v -> {
+
             nameText.setEnabled(true);
-            instagramText.setEnabled(true);
-            facebookText.setEnabled(true);
-            linkedinText.setEnabled(true);
-            twitterText.setEnabled(true);
+
+            instagramEdit.setVisibility(View.VISIBLE);
+            facebookEdit.setVisibility(View.VISIBLE);
+            linkedinEdit.setVisibility(View.VISIBLE);
+            twitterEdit.setVisibility(View.VISIBLE);
+
+            instagramEdit.setText(instagramText.getText().toString());
+            facebookEdit.setText(facebookText.getText().toString());
+            linkedinEdit.setText(linkedinText.getText().toString());
+            twitterEdit.setText(twitterText.getText().toString());
+
             saveBtn.setVisibility(View.VISIBLE);
         });
 
@@ -86,21 +136,25 @@ public class UserProfileActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(v -> saveChanges());
 
         // 🔥 Bottom Bar
-
         btnNearby.setOnClickListener(v ->
                 startActivity(new Intent(this, MainActivity.class)));
 
         btnLogout.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
+            auth.signOut();
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         });
 
         btnSettings.setOnClickListener(v ->
-                Toast.makeText(this, "Settings coming soon", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(this, SettingsActivity.class)));
+
+        // 🔗 לינקים
+        instagramText.setOnClickListener(v -> openLink(instagramText.getText().toString()));
+        facebookText.setOnClickListener(v -> openLink(facebookText.getText().toString()));
+        linkedinText.setOnClickListener(v -> openLink(linkedinText.getText().toString()));
+        twitterText.setOnClickListener(v -> openLink(twitterText.getText().toString()));
     }
 
-    // 🔄 טעינת נתונים מה־Firebase
     private void loadUserData() {
 
         db.collection("users").document(userId)
@@ -109,6 +163,7 @@ public class UserProfileActivity extends AppCompatActivity {
                     if (doc.exists()) {
 
                         nameText.setText(doc.getString("name"));
+
                         instagramText.setText(doc.getString("instagram"));
                         facebookText.setText(doc.getString("facebook"));
                         linkedinText.setText(doc.getString("linkedin"));
@@ -122,23 +177,26 @@ public class UserProfileActivity extends AppCompatActivity {
 
                         if (gender != null)
                             genderText.setText(gender);
-                    } else {
-                        Toast.makeText(this, "No profile data found", Toast.LENGTH_SHORT).show();
+
+                        // 📸 תמונה
+                        String imageUrl = doc.getString("profileImage");
+
+                        if (imageUrl != null) {
+                            Picasso.get().load(imageUrl).into(profileImage);
+                        }
                     }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                });
     }
 
-    // 💾 שמירת שינויים
     private void saveChanges() {
 
         Map<String, Object> updates = new HashMap<>();
+
         updates.put("name", nameText.getText().toString());
-        updates.put("instagram", instagramText.getText().toString());
-        updates.put("facebook", facebookText.getText().toString());
-        updates.put("linkedin", linkedinText.getText().toString());
-        updates.put("twitter", twitterText.getText().toString());
+        updates.put("instagram", instagramEdit.getText().toString());
+        updates.put("facebook", facebookEdit.getText().toString());
+        updates.put("linkedin", linkedinEdit.getText().toString());
+        updates.put("twitter", twitterEdit.getText().toString());
 
         db.collection("users").document(userId)
                 .update(updates)
@@ -146,15 +204,80 @@ public class UserProfileActivity extends AppCompatActivity {
 
                     Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show();
 
-                    nameText.setEnabled(false);
-                    instagramText.setEnabled(false);
-                    facebookText.setEnabled(false);
-                    linkedinText.setEnabled(false);
-                    twitterText.setEnabled(false);
+                    instagramText.setText(instagramEdit.getText().toString());
+                    facebookText.setText(facebookEdit.getText().toString());
+                    linkedinText.setText(linkedinEdit.getText().toString());
+                    twitterText.setText(twitterEdit.getText().toString());
+
+                    instagramEdit.setVisibility(View.GONE);
+                    facebookEdit.setVisibility(View.GONE);
+                    linkedinEdit.setVisibility(View.GONE);
+                    twitterEdit.setVisibility(View.GONE);
 
                     saveBtn.setVisibility(View.GONE);
+                });
+    }
+
+    private void openLink(String url) {
+
+        if (url == null || url.isEmpty()) {
+            Toast.makeText(this, "No link available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!url.startsWith("http")) {
+            url = "https://" + url;
+        }
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
+    }
+
+    private void uploadToCloudinary() {
+
+        MediaManager.get().upload(imageUri)
+                .callback(new UploadCallback() {
+
+                    @Override
+                    public void onStart(String requestId) {}
+
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {}
+
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+
+                        String imageUrl = resultData.get("secure_url").toString();
+                        saveImageToFirestore(imageUrl);
+                    }
+
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {}
+
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {}
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                .dispatch();
+    }
+
+    private void saveImageToFirestore(String imageUrl) {
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(auth.getCurrentUser().getUid())
+                .update("profileImage", imageUrl);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
+            imageUri = data.getData();
+            profileImage.setImageURI(imageUri);
+
+            uploadToCloudinary();
+        }
     }
 }

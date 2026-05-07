@@ -4,8 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.Toast;
+import android.widget.*;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -17,10 +17,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,37 +31,67 @@ public class MainActivity extends AppCompatActivity {
 
     Button btnSettings, btnNearby, btnLogout, btnProfile;
 
+    // 🔥 פילטרים
+    EditText minAge, maxAge;
+    Spinner genderFilter;
+
+    double myLat = 0, myLng = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 🔥 חיבור כפתורים
+        // 🔗 כפתורים
         btnSettings = findViewById(R.id.btnSettings);
         btnNearby = findViewById(R.id.btnNearby);
         btnLogout = findViewById(R.id.btnLogout);
         btnProfile = findViewById(R.id.btnProfile);
 
-        // 🔥 פעולות כפתורים
+        // 🔗 פילטרים
+        minAge = findViewById(R.id.minAge);
+        maxAge = findViewById(R.id.maxAge);
+        genderFilter = findViewById(R.id.genderFilter);
 
-        btnNearby.setOnClickListener(v -> {
-            // כבר במסך הזה
+        String[] genders = {"All", "Male", "Female"};
+        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                genders
+        );
+        genderFilter.setAdapter(adapterSpinner);
+
+        // 🔥 טריגרים לפילטר
+        minAge.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) applyFilters();
         });
 
-        btnProfile.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, UserProfileActivity.class));
+        maxAge.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) applyFilters();
         });
+
+        genderFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                applyFilters();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // 🔥 כפתורים
+        btnProfile.setOnClickListener(v ->
+                startActivity(new Intent(this, UserProfileActivity.class)));
 
         btnLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
         });
 
-        btnSettings.setOnClickListener(v -> {
-            Toast.makeText(MainActivity.this, "Settings coming soon", Toast.LENGTH_SHORT).show();
-        });
-
+        btnSettings.setOnClickListener(v ->
+                startActivity(new Intent(this, SettingsActivity.class)));
         // Firebase
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         db = FirebaseFirestore.getInstance();
@@ -77,6 +104,12 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         getLocation();
+    }
+
+    // 🔥 הפעלת פילטרים מחדש
+    private void applyFilters() {
+        userList.clear();
+        getNearbyUsers(myLat, myLng);
     }
 
     private void getLocation() {
@@ -94,11 +127,11 @@ public class MainActivity extends AppCompatActivity {
                 .addOnSuccessListener(location -> {
                     if (location != null) {
 
-                        double lat = location.getLatitude();
-                        double lng = location.getLongitude();
+                        myLat = location.getLatitude();
+                        myLng = location.getLongitude();
 
-                        saveLocation(lat, lng);
-                        getNearbyUsers(lat, lng);
+                        saveLocation(myLat, myLng);
+                        getNearbyUsers(myLat, myLng);
 
                     } else {
                         Toast.makeText(this, "Location not found", Toast.LENGTH_SHORT).show();
@@ -127,23 +160,44 @@ public class MainActivity extends AppCompatActivity {
 
             userList.clear();
 
+            String minAgeText = minAge.getText().toString();
+            String maxAgeText = maxAge.getText().toString();
+
+            int min = minAgeText.isEmpty() ? 0 : Integer.parseInt(minAgeText);
+            int max = maxAgeText.isEmpty() ? 100 : Integer.parseInt(maxAgeText);
+
+            String selectedGender = genderFilter.getSelectedItem().toString();
+
             for (var doc : queryDocumentSnapshots.getDocuments()) {
+                // 🔥 הסתרת משתמשים
+                Boolean hidden = doc.getBoolean("hidden");
+                if (hidden != null && hidden) continue;
 
                 Double lat = doc.getDouble("lat");
                 Double lng = doc.getDouble("lng");
-                String email = doc.getString("email");
 
+                Long age = doc.getLong("age");
+                String gender = doc.getString("gender");
+
+                String email = doc.getString("email");
                 String name = doc.getString("name");
-                String instagram = doc.getString("instagram");
-                String facebook = doc.getString("facebook");
-                String linkedin = doc.getString("linkedin");
-                String twitter = doc.getString("twitter");
 
                 if (lat == null || lng == null || email == null) continue;
 
+                // לא להציג את עצמי
                 if (auth.getCurrentUser() != null &&
                         doc.getId().equals(auth.getCurrentUser().getUid())) {
                     continue;
+                }
+
+                // 🔥 סינון גיל
+                if (age != null && (age < min || age > max)) continue;
+
+                // 🔥 סינון מגדר
+                if (!selectedGender.equals("All")) {
+                    if (gender == null || !gender.equals(selectedGender)) {
+                        continue;
+                    }
                 }
 
                 double distance = distanceBetween(myLat, myLng, lat, lng);
@@ -153,10 +207,10 @@ public class MainActivity extends AppCompatActivity {
                             doc.getId(),
                             email,
                             name,
-                            instagram,
-                            facebook,
-                            linkedin,
-                            twitter,
+                            doc.getString("instagram"),
+                            doc.getString("facebook"),
+                            doc.getString("linkedin"),
+                            doc.getString("twitter"),
                             lat,
                             lng,
                             distance

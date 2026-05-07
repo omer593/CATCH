@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- 🔽 תוכן גלילה -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -19,6 +20,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <!-- 🔥 תמונת פרופיל -->
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_launcher_background"
+                android:background="@drawable/circle_bg"
+                android:padding="4dp"/>
+
+            <!-- 🔥 כפתור העלאה -->
+            <Button
+                android:id="@+id/uploadImageBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Upload Image"
+                android:layout_marginTop="8dp"/>
+
+            <!-- 🔥 שם -->
             <EditText
                 android:id="@+id/nameText"
                 android:hint="Name"
@@ -42,34 +63,67 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
-            <EditText
+            <!-- 🔗 Instagram -->
+            <TextView
                 android:id="@+id/instagramText"
-                android:hint="Instagram"
-                android:enabled="false"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="#0000EE"
+                android:clickable="true"/>
 
             <EditText
+                android:id="@+id/instagramEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Instagram link"
+                android:visibility="gone"/>
+
+            <!-- 🔗 Facebook -->
+            <TextView
                 android:id="@+id/facebookText"
-                android:hint="Facebook"
-                android:enabled="false"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="#0000EE"
+                android:clickable="true"/>
 
             <EditText
+                android:id="@+id/facebookEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Facebook link"
+                android:visibility="gone"/>
+
+            <!-- 🔗 LinkedIn -->
+            <TextView
                 android:id="@+id/linkedinText"
-                android:hint="LinkedIn"
-                android:enabled="false"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="#0000EE"
+                android:clickable="true"/>
 
             <EditText
-                android:id="@+id/twitterText"
-                android:hint="Twitter"
-                android:enabled="false"
+                android:id="@+id/linkedinEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:hint="LinkedIn link"
+                android:visibility="gone"/>
 
+            <!-- 🔗 Twitter -->
+            <TextView
+                android:id="@+id/twitterText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#0000EE"
+                android:clickable="true"/>
+
+            <EditText
+                android:id="@+id/twitterEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Twitter link"
+                android:visibility="gone"/>
+
+            <!-- כפתורים -->
             <Button
                 android:id="@+id/editBtn"
                 android:text="Edit"
