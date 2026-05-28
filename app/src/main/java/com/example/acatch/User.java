@@ -2,16 +2,21 @@ package com.example.acatch;
 
 public class User {
 
-    String id;
-    String email;
+    public String id;
+    public String email;
 
-    String name;
-    String instagram;
-    String facebook;
-    String linkedin;
-    String twitter;
+    public String name;
+    public String instagram;
+    public String facebook;
+    public String linkedin;
+    public String twitter;
 
-    double lat, lng, distance;
+    public String imageUrl; // 🔥 חדש
+
+    public double lat, lng, distance;
+
+    // 🔥 חובה ל-Firebase
+    public User() {}
 
     public User(String id, String email,
                 String name,
@@ -19,6 +24,7 @@ public class User {
                 String facebook,
                 String linkedin,
                 String twitter,
+                String imageUrl, // 🔥 נוסף
                 double lat, double lng, double distance) {
 
         this.id = id;
@@ -29,6 +35,8 @@ public class User {
         this.facebook = facebook;
         this.linkedin = linkedin;
         this.twitter = twitter;
+
+        this.imageUrl = imageUrl; // 🔥
 
         this.lat = lat;
         this.lng = lng;

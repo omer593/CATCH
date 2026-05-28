@@ -8,6 +8,7 @@ import android.widget.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -25,9 +26,7 @@ import android.os.Build;
 public class UserProfileActivity extends AppCompatActivity {
 
     EditText nameText, ageText, genderText;
-
     TextView instagramText, facebookText, linkedinText, twitterText;
-
     EditText instagramEdit, facebookEdit, linkedinEdit, twitterEdit;
 
     ImageView profileImage;
@@ -36,8 +35,6 @@ public class UserProfileActivity extends AppCompatActivity {
     Uri imageUri;
 
     Button editBtn, saveBtn;
-
-    Button btnSettings, btnNearby, btnLogout, btnProfile;
 
     FirebaseFirestore db;
     FirebaseAuth auth;
@@ -48,11 +45,14 @@ public class UserProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
+
+        // 🔐 הרשאות
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requestPermissions(new String[]{android.Manifest.permission.READ_MEDIA_IMAGES}, 1);
         } else {
             requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
         }
+
         // 🔗 חיבורים
         nameText = findViewById(R.id.nameText);
         ageText = findViewById(R.id.ageText);
@@ -71,41 +71,51 @@ public class UserProfileActivity extends AppCompatActivity {
         editBtn = findViewById(R.id.editBtn);
         saveBtn = findViewById(R.id.saveBtn);
 
-        btnSettings = findViewById(R.id.btnSettings);
-        btnNearby = findViewById(R.id.btnNearby);
-        btnLogout = findViewById(R.id.btnLogout);
-        btnProfile = findViewById(R.id.btnProfile);
-
         profileImage = findViewById(R.id.profileImage);
         uploadImageBtn = findViewById(R.id.uploadImageBtn);
 
-        // 📸 בחירת תמונה
+        db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
+
+        userId = getIntent().getStringExtra("userId");
+        if (userId == null && auth.getCurrentUser() != null) {
+            userId = auth.getCurrentUser().getUid();
+        }
+
+        // 🔥 Bottom Navigation (החדש)
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+
+        bottomNav.setSelectedItemId(R.id.nav_profile);
+
+        bottomNav.setOnItemSelectedListener(item -> {
+
+            if (item.getItemId() == R.id.nav_home) {
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+                return true;
+            }
+
+            if (item.getItemId() == R.id.nav_profile) {
+                return true;
+            }
+
+            if (item.getItemId() == R.id.nav_settings) {
+                startActivity(new Intent(this, SettingsActivity.class));
+                finish();
+                return true;
+            }
+
+            return false;
+        });
+
+        // 📸 העלאת תמונה
         uploadImageBtn.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType("image/*");
             startActivityForResult(intent, 1);
         });
 
-        db = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
-
-        // 🔥 userId
-        userId = getIntent().getStringExtra("userId");
-        if (userId == null) {
-            userId = auth.getCurrentUser().getUid();
-        }
-
-        // 🔥 האם זה הפרופיל שלי
-        String myId = auth.getCurrentUser().getUid();
-        boolean isMyProfile = userId.equals(myId);
-
-        if (!isMyProfile) {
-            editBtn.setVisibility(View.GONE);
-            saveBtn.setVisibility(View.GONE);
-            uploadImageBtn.setVisibility(View.GONE);
-        }
-
-        // 🔥 Cloudinary init (פעם אחת בלבד)
+        // 🔥 Cloudinary init
         Map config = new HashMap();
         config.put("cloud_name", "dzo0vdcwk");
         config.put("api_key", "738559658125758");
@@ -116,7 +126,6 @@ public class UserProfileActivity extends AppCompatActivity {
 
         // ✏️ Edit
         editBtn.setOnClickListener(v -> {
-
             nameText.setEnabled(true);
 
             instagramEdit.setVisibility(View.VISIBLE);
@@ -134,19 +143,6 @@ public class UserProfileActivity extends AppCompatActivity {
 
         // 💾 Save
         saveBtn.setOnClickListener(v -> saveChanges());
-
-        // 🔥 Bottom Bar
-        btnNearby.setOnClickListener(v ->
-                startActivity(new Intent(this, MainActivity.class)));
-
-        btnLogout.setOnClickListener(v -> {
-            auth.signOut();
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        });
-
-        btnSettings.setOnClickListener(v ->
-                startActivity(new Intent(this, SettingsActivity.class)));
 
         // 🔗 לינקים
         instagramText.setOnClickListener(v -> openLink(instagramText.getText().toString()));
@@ -178,10 +174,9 @@ public class UserProfileActivity extends AppCompatActivity {
                         if (gender != null)
                             genderText.setText(gender);
 
-                        // 📸 תמונה
-                        String imageUrl = doc.getString("profileImage");
+                        String imageUrl = doc.getString("imageUrl");
 
-                        if (imageUrl != null) {
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
                             Picasso.get().load(imageUrl).into(profileImage);
                         }
                     }
@@ -232,52 +227,5 @@ public class UserProfileActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
         startActivity(intent);
-    }
-
-    private void uploadToCloudinary() {
-
-        MediaManager.get().upload(imageUri)
-                .callback(new UploadCallback() {
-
-                    @Override
-                    public void onStart(String requestId) {}
-
-                    @Override
-                    public void onProgress(String requestId, long bytes, long totalBytes) {}
-
-                    @Override
-                    public void onSuccess(String requestId, Map resultData) {
-
-                        String imageUrl = resultData.get("secure_url").toString();
-                        saveImageToFirestore(imageUrl);
-                    }
-
-                    @Override
-                    public void onError(String requestId, ErrorInfo error) {}
-
-                    @Override
-                    public void onReschedule(String requestId, ErrorInfo error) {}
-                })
-                .dispatch();
-    }
-
-    private void saveImageToFirestore(String imageUrl) {
-
-        FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(auth.getCurrentUser().getUid())
-                .update("profileImage", imageUrl);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
-            imageUri = data.getData();
-            profileImage.setImageURI(imageUri);
-
-            uploadToCloudinary();
-        }
     }
 }

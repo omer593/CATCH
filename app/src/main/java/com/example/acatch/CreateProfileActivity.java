@@ -30,6 +30,7 @@ public class CreateProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_profile);
 
+        // 🔗 חיבורים
         name = findViewById(R.id.name);
         age = findViewById(R.id.age);
         gender = findViewById(R.id.gender);
@@ -42,7 +43,7 @@ public class CreateProfileActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        // 🔥 מגדר - Spinner
+        // 🔥 Spinner מגדר
         String[] genders = {"Male", "Female"};
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -52,21 +53,10 @@ public class CreateProfileActivity extends AppCompatActivity {
         );
 
         gender.setAdapter(adapter);
-        age.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) {
-                String ageText = age.getText().toString();
 
-                if (!ageText.isEmpty()) {
-                    try {
-                        int a = Integer.parseInt(ageText);
-                        if (a < 18 || a > 99) {
-                            age.setError("Invalid input");
-                        }
-                    } catch (Exception e) {
-                        age.setError("Invalid input");
-                    }
-                }
-            }
+        // 🔥 בדיקת גיל
+        age.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) validateAge();
         });
     }
 
@@ -83,9 +73,14 @@ public class CreateProfileActivity extends AppCompatActivity {
         String ln = linkedin.getText().toString().trim();
         String tw = twitter.getText().toString().trim();
 
-        // ❗ בדיקות שדות חובה
-        if (nameText.isEmpty() || ageText.isEmpty()) {
-            Toast.makeText(this, "Invalid input", Toast.LENGTH_SHORT).show();
+        // ❗ בדיקות
+        if (nameText.isEmpty()) {
+            name.setError("Name required");
+            return;
+        }
+
+        if (ageText.isEmpty()) {
+            age.setError("Age required");
             return;
         }
 
@@ -93,19 +88,17 @@ public class CreateProfileActivity extends AppCompatActivity {
         try {
             ageNum = Integer.parseInt(ageText);
         } catch (Exception e) {
-            Toast.makeText(this, "Invalid age", Toast.LENGTH_SHORT).show();
+            age.setError("Invalid age");
             return;
         }
 
-        // 🔥 הגבלת גיל
         if (ageNum < 18 || ageNum > 99) {
             age.setError("Age must be between 18-99");
             return;
         }
 
-        // 🔥 בדיקת קישורים
         if (!isValidUrl(insta) || !isValidUrl(fb) || !isValidUrl(ln) || !isValidUrl(tw)) {
-            Toast.makeText(this, "Invalid link", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid social link", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -120,13 +113,15 @@ public class CreateProfileActivity extends AppCompatActivity {
         data.put("linkedin", ln);
         data.put("twitter", tw);
 
+        // 🔥 חשוב — שדה תמונה (ריק בהתחלה)
+        data.put("imageUrl", "");
+
         db.collection("users").document(userId)
                 .set(data, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
 
-                    Toast.makeText(this, "Profile saved successfully!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Profile saved!", Toast.LENGTH_SHORT).show();
 
-                    // 🔥 מעבר למסך הראשי
                     startActivity(new Intent(CreateProfileActivity.this, MainActivity.class));
                     finish();
                 })
@@ -134,7 +129,21 @@ public class CreateProfileActivity extends AppCompatActivity {
                         Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
 
-    // 🔥 בדיקת URL
+    private void validateAge() {
+        String ageText = age.getText().toString();
+
+        if (!ageText.isEmpty()) {
+            try {
+                int a = Integer.parseInt(ageText);
+                if (a < 18 || a > 99) {
+                    age.setError("Age must be between 18-99");
+                }
+            } catch (Exception e) {
+                age.setError("Invalid age");
+            }
+        }
+    }
+
     private boolean isValidUrl(String url) {
 
         if (url.isEmpty()) return true;

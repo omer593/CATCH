@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:background="@drawable/img">
 
     <LinearLayout
         android:orientation="vertical"
@@ -10,59 +11,126 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Name"/>
-
-        <EditText
-            android:id="@+id/age"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Age"
-            android:inputType="number"/>
-
-        <Spinner
-            android:id="@+id/gender"
-            android:layout_width="match_parent"
+        <!-- 🔥 TITLE -->
+        <TextView
+            android:text="Create Your Profile"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="24dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <EditText
-            android:id="@+id/instagram"
+        <!-- 🔥 CARD -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#66000000"
+            android:elevation="10dp"
+            android:layout_marginBottom="20dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Instagram link"
-            android:inputType="textUri"/>
+            android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/facebook"
+            <!-- NAME -->
+            <EditText
+                android:id="@+id/name"
+                android:hint="Name"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#AAAAAA"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <!-- AGE -->
+            <EditText
+                android:id="@+id/age"
+                android:hint="Age"
+                android:inputType="number"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#AAAAAA"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <!-- GENDER -->
+            <Spinner
+                android:id="@+id/gender"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="#FFFFFF"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <!-- 🔥 SOCIAL CARD -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#66000000"
+            android:elevation="10dp"
+            android:layout_marginBottom="20dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Facebook link"
-            android:inputType="textUri"/>
+            android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/linkedin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="LinkedIn link"
-            android:inputType="textUri"/>
+            <TextView
+                android:text="Social Links"
+                android:textColor="#00E5FF"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
-        <EditText
-            android:id="@+id/twitter"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Twitter link"
-            android:inputType="textUri"/>
+            <EditText
+                android:id="@+id/instagram"
+                android:hint="Instagram"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#AAAAAA"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
+            <EditText
+                android:id="@+id/facebook"
+                android:hint="Facebook"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#AAAAAA"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <EditText
+                android:id="@+id/linkedin"
+                android:hint="LinkedIn"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#AAAAAA"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <EditText
+                android:id="@+id/twitter"
+                android:hint="Twitter"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#AAAAAA"
+                android:background="@android:color/transparent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- 🔥 BUTTON -->
         <Button
-            android:id="@+id/saveBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:onClick="saveProfile"
             android:text="Save Profile"
-            android:layout_marginTop="16dp"
-            android:onClick="saveProfile"/>
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#7B2FF7"
+            android:layout_height="55dp"
+            android:layout_width="match_parent"/>
 
     </LinearLayout>
+
 </ScrollView>

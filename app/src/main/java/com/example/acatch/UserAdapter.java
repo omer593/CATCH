@@ -4,8 +4,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -18,12 +21,15 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView userId, distance;
+        TextView userName, distance;
+        ImageView userImage;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            userId = itemView.findViewById(R.id.userId);
-            distance = itemView.findViewById(R.id.distance);
+
+            userName = itemView.findViewById(R.id.userName);
+            distance = itemView.findViewById(R.id.userDistance);
+            userImage = itemView.findViewById(R.id.userImage);
         }
     }
 
@@ -38,9 +44,33 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, int position) {
         User user = users.get(position);
 
-        holder.userId.setText(user.email);
-        holder.distance.setText("Distance: " + String.format("%.2f", user.distance) + " km");
+        // 🔥 שם בטוח (בלי כפילויות!)
+        if (user.name != null && !user.name.isEmpty()) {
+            holder.userName.setText(user.name);
+        } else {
+            holder.userName.setText("Unknown");
+        }
 
+        // 🔥 מרחק בטוח
+        holder.distance.setText("Distance: " +
+                String.format("%.2f", user.distance) + " km");
+
+        // 🔥 תמונה בטוחה (מונע קריסה)
+        try {
+            if (user.imageUrl != null && !user.imageUrl.isEmpty()) {
+                Picasso.get()
+                        .load(user.imageUrl)
+                        .placeholder(R.drawable.circle_bg)
+                        .error(R.drawable.circle_bg)
+                        .into(holder.userImage);
+            } else {
+                holder.userImage.setImageResource(R.drawable.circle_bg);
+            }
+        } catch (Exception e) {
+            holder.userImage.setImageResource(R.drawable.circle_bg);
+        }
+
+        // 🔥 לחיצה
         holder.itemView.setOnClickListener(v -> {
 
             android.content.Intent intent =
