@@ -19,6 +19,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.Priority;
+
 import java.util.*;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
     double myLat = 0, myLng = 0;
 
+    private LocationCallback locationCallback;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         minAge = findViewById(R.id.minAge);
         maxAge = findViewById(R.id.maxAge);
         genderFilter = findViewById(R.id.genderFilter);
+        ImageButton btnFilter = findViewById(R.id.btnFilter);
 
         String[] genders = {"All", "Male", "Female"};
 
@@ -61,7 +69,24 @@ public class MainActivity extends AppCompatActivity {
         );
 
         genderFilter.setAdapter(adapterSpinner);
+        btnFilter.setOnClickListener(v -> {
+            getNearbyUsers(myLat, myLng);
+        });
 
+        genderFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                if (myLat != 0 || myLng != 0) {
+                    getNearbyUsers(myLat, myLng);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         // 🔥 Bottom Navigation
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
 
@@ -110,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         getLocation();
+        startLocationUpdates();
     }
 
     private void getLocation() {
@@ -137,6 +163,50 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Location not found", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void startLocationUpdates() {
+
+        LocationRequest locationRequest =
+                new LocationRequest.Builder(
+                        Priority.PRIORITY_HIGH_ACCURACY,
+                        5000
+                )
+                        .setMinUpdateIntervalMillis(5000)
+                        .build();
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+
+                if (locationResult == null) return;
+
+                android.location.Location location =
+                        locationResult.getLastLocation();
+
+                if (location == null) return;
+
+                myLat = location.getLatitude();
+                myLng = location.getLongitude();
+
+                saveLocation(myLat, myLng);
+
+                //getNearbyUsers(myLat, myLng);
+            }
+        };
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                getMainLooper()
+        );
     }
 
     private void saveLocation(double lat, double lng) {
@@ -204,15 +274,30 @@ public class MainActivity extends AppCompatActivity {
                     continue;
                 }
 
-                if (age != null && (age < min || age > max)) continue;
+                boolean ageFilterUsed =
+                        !minAgeText.isEmpty() || !maxAgeText.isEmpty();
 
+                if (ageFilterUsed && age == null) {
+                    continue;
+                }
+
+                if (age != null && (age < min || age > max)) {
+                    continue;
+                }
                 if (!selectedGender.equals("All")) {
-                    if (gender == null || !gender.equals(selectedGender)) continue;
+
+                    if (gender == null) {
+                        continue;
+                    }
+
+                    if (!gender.trim().equalsIgnoreCase(selectedGender.trim())) {
+                        continue;
+                    }
                 }
 
                 double distance = distanceBetween(myLat, myLng, lat, lng);
 
-                if (distance < 100) {
+                if (distance < 1) {
 
                     String imageUrl = doc.getString("imageUrl");
                     if (imageUrl == null) imageUrl = "";
@@ -258,6 +343,14 @@ public class MainActivity extends AppCompatActivity {
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
             getLocation();
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
 }

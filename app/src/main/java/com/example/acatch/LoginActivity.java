@@ -20,6 +20,19 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // 🔥 אם המשתמש כבר מחובר - נכנסים ישר לאפליקציה
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+
+            startActivity(new Intent(
+                    LoginActivity.this,
+                    MainActivity.class
+            ));
+
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_login);
 
         email = findViewById(R.id.email);
@@ -29,62 +42,103 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // 🔵 LOGIN - פשוט נכנס לאפליקציה
+        // 🔵 LOGIN
         loginBtn.setOnClickListener(v -> {
+
             String userEmail = email.getText().toString().trim();
             String userPass = password.getText().toString().trim();
 
             if (userEmail.isEmpty() || userPass.isEmpty()) {
-                Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,
+                        "Fill all fields",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
 
             mAuth.signInWithEmailAndPassword(userEmail, userPass)
                     .addOnCompleteListener(task -> {
+
                         if (task.isSuccessful()) {
 
-                            Toast.makeText(this, "Login Success!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this,
+                                    "Login Success!",
+                                    Toast.LENGTH_SHORT).show();
 
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            startActivity(
+                                    new Intent(
+                                            LoginActivity.this,
+                                            MainActivity.class
+                                    )
+                            );
+
                             finish();
 
                         } else {
-                            Toast.makeText(this,
+
+                            Toast.makeText(
+                                    this,
                                     task.getException().getMessage(),
-                                    Toast.LENGTH_LONG).show();
+                                    Toast.LENGTH_LONG
+                            ).show();
                         }
                     });
         });
 
-        // 🟢 REGISTER - עובר ישר ליצירת פרופיל
+        // 🟢 REGISTER
         registerBtn.setOnClickListener(v -> {
+
             String userEmail = email.getText().toString().trim();
             String userPass = password.getText().toString().trim();
 
             if (userEmail.isEmpty() || userPass.isEmpty()) {
-                Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show();
+
+                Toast.makeText(
+                        this,
+                        "Fill all fields",
+                        Toast.LENGTH_SHORT
+                ).show();
+
                 return;
             }
 
             if (userPass.length() < 6) {
-                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+
+                Toast.makeText(
+                        this,
+                        "Password must be at least 6 characters",
+                        Toast.LENGTH_SHORT
+                ).show();
+
                 return;
             }
 
             mAuth.createUserWithEmailAndPassword(userEmail, userPass)
                     .addOnCompleteListener(task -> {
+
                         if (task.isSuccessful()) {
 
-                            Toast.makeText(this, "User Created!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(
+                                    this,
+                                    "User Created!",
+                                    Toast.LENGTH_SHORT
+                            ).show();
 
-                            // 🔥 מעבר ישר למסך פרופיל
-                            startActivity(new Intent(LoginActivity.this, CreateProfileActivity.class));
+                            startActivity(
+                                    new Intent(
+                                            LoginActivity.this,
+                                            CreateProfileActivity.class
+                                    )
+                            );
+
                             finish();
 
                         } else {
-                            Toast.makeText(this,
+
+                            Toast.makeText(
+                                    this,
                                     task.getException().getMessage(),
-                                    Toast.LENGTH_LONG).show();
+                                    Toast.LENGTH_LONG
+                            ).show();
                         }
                     });
         });
