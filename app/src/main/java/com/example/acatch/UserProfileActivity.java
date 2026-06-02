@@ -115,13 +115,19 @@ public class UserProfileActivity extends AppCompatActivity {
             startActivityForResult(intent, 1);
         });
 
-        // 🔥 Cloudinary init
-        Map config = new HashMap();
-        config.put("cloud_name", "dzo0vdcwk");
-        config.put("api_key", "738559658125758");
-        config.put("api_secret", "HzfIy84xxSISHleEV9kC4oJVW_4");
-        MediaManager.init(this, config);
+        // 🔥 Cloudinary init (מתוקן — בלי קריסות)
+        try {
+            MediaManager.get();
+        } catch (Exception e) {
+            Map config = new HashMap();
+            config.put("cloud_name", "dzo0vdcwk");
+            config.put("api_key", "738559658125758");
+            config.put("api_secret", "HzfIy84xxSISHleEV9kC4oJVW_4");
 
+            MediaManager.init(this, config);
+        }
+
+// 🔥 טוען נתונים
         loadUserData();
 
         // ✏️ Edit
@@ -227,5 +233,63 @@ public class UserProfileActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
         startActivity(intent);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
+
+            imageUri = data.getData();
+
+            // מראה את התמונה מיד
+            profileImage.setImageURI(imageUri);
+
+            // 🔥 העלאה ל-Cloudinary
+            MediaManager.get().upload(imageUri)
+                    .callback(new UploadCallback() {
+
+                        @Override
+                        public void onStart(String requestId) {}
+
+                        @Override
+                        public void onProgress(String requestId, long bytes, long totalBytes) {}
+
+                        @Override
+                        public void onSuccess(String requestId, Map resultData) {
+
+                            String imageUrl = resultData.get("secure_url").toString();
+
+                            // 🔥 שמירה ב-Firestore
+                            db.collection("users")
+                                    .document(userId)
+                                    .update("imageUrl", imageUrl)
+                                    .addOnSuccessListener(aVoid -> {
+
+                                        // 🔥 טוען מחדש מיד
+                                        Picasso.get().load(imageUrl).into(profileImage);
+
+                                        Toast.makeText(UserProfileActivity.this,
+                                                "Saved to Firestore!", Toast.LENGTH_SHORT).show();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(UserProfileActivity.this,
+                                                "Firestore failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                    });
+                            Toast.makeText(UserProfileActivity.this,
+                                    "Image uploaded!", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(String requestId, ErrorInfo error) {
+                            Toast.makeText(UserProfileActivity.this,
+                                    "Upload failed", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onReschedule(String requestId, ErrorInfo error) {}
+                    })
+                    .dispatch();
+        }
     }
 }
