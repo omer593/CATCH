@@ -80,124 +80,249 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/catch_text" />
-            </com.google.android.material.textfield.TextInputLayout> <!-- Social Links --> <TextView
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Social Links -->
+        <!-- Social Links -->
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="2dp"
-            android:gravity="center"
             android:text="Social Links"
-            android:textAlignment="center"
             android:textColor="@color/catch_link"
+            android:textStyle="bold"
             android:textSize="16sp"
-            android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/instagramText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/catch_text" />
-
+            android:gravity="center"
+            android:textAlignment="center"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp"/>
             <EditText
                 android:id="@+id/instagramEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="Instagram"
+                android:visibility="gone"
                 android:textColor="@color/catch_text"
                 android:textColorHint="@color/catch_hint"
-                android:visibility="gone" />
+                android:background="@android:color/transparent"/>
+        <LinearLayout
+            android:id="@+id/instagramRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/user_card_bg">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_instagram"/>
 
             <TextView
-                android:id="@+id/facebookText"
+                android:id="@+id/instagramText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:text="Instagram"
+                android:textColor="@color/catch_text"
+                android:textSize="16sp"/>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_share"/>
+        </LinearLayout>
+            <EditText
+                android:id="@+id/instagramEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/catch_text" />
+                android:hint="Instagram URL"
+                android:textColor="@color/catch_text"
+                android:textColorHint="@color/catch_hint"
+                android:visibility="gone"
+                android:background="@drawable/edit_text_bg"
+                android:padding="12dp"/>
 
             <EditText
                 android:id="@+id/facebookEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="Facebook"
+                android:visibility="gone"
                 android:textColor="@color/catch_text"
-                android:textColorHint="@color/catch_hint"
-                android:visibility="gone" />
+                android:textColorHint="@color/catch_hint"/>
+        <LinearLayout
+            android:id="@+id/facebookRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/user_card_bg">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_facebook"/>
 
             <TextView
-                android:id="@+id/linkedinText"
+                android:id="@+id/facebookText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:text="Facebook"
+                android:textColor="@color/catch_text"
+                android:textSize="16sp"/>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_share"/>
+        </LinearLayout>
+            <EditText
+                android:id="@+id/facebookEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/catch_text" />
+                android:hint="Facebook URL"
+                android:textColor="@color/catch_text"
+                android:textColorHint="@color/catch_hint"
+                android:visibility="gone"
+                android:background="@drawable/edit_text_bg"
+                android:padding="12dp"/>
 
             <EditText
                 android:id="@+id/linkedinEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="LinkedIn"
+                android:visibility="gone"
                 android:textColor="@color/catch_text"
-                android:textColorHint="@color/catch_hint"
-                android:visibility="gone" />
+                android:textColorHint="@color/catch_hint"/>
+        <LinearLayout
+            android:id="@+id/linkedinRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/user_card_bg">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_linkedin"/>
 
             <TextView
-                android:id="@+id/twitterText"
+                android:id="@+id/linkedinText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:text="LinkedIn"
+                android:textColor="@color/catch_text"
+                android:textSize="16sp"/>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_share"/>
+        </LinearLayout>
+            <EditText
+                android:id="@+id/linkedinEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/catch_text" />
-
+                android:hint="LinkedIn URL"
+                android:textColor="@color/catch_text"
+                android:textColorHint="@color/catch_hint"
+                android:visibility="gone"
+                android:background="@drawable/edit_text_bg"
+                android:padding="12dp"/>
             <EditText
                 android:id="@+id/twitterEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:hint="Twitter"
+                android:visibility="gone"
+                android:textColor="@color/catch_text"
+                android:textColorHint="@color/catch_hint"/>
+        <LinearLayout
+            android:id="@+id/twitterRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/user_card_bg">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_twitter"/>
+
+            <TextView
+                android:id="@+id/twitterText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:text="Twitter"
+                android:textColor="@color/catch_text"
+                android:textSize="16sp"/>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_share"/>
+        </LinearLayout>
+            <EditText
+                android:id="@+id/twitterEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Twitter URL"
                 android:textColor="@color/catch_text"
                 android:textColorHint="@color/catch_hint"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:background="@drawable/edit_text_bg"
+                android:padding="12dp"/>
+
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/editBtn"
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
-                android:layout_marginTop="0dp"
-                android:backgroundTint="@android:color/transparent"
+                android:layout_marginTop="8dp"
                 android:text="Edit Profile"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:cornerRadius="18dp"
+                android:backgroundTint="@android:color/transparent"
                 app:strokeColor="@color/catch_purple"
-                app:strokeWidth="2dp" />
+                app:strokeWidth="2dp"
+                app:cornerRadius="18dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveBtn"
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:layout_marginTop="8dp"
+                android:text="Save Changes"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:backgroundTint="@android:color/transparent"
-                android:text="Save Changes"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold"
                 android:visibility="gone"
-                app:cornerRadius="18dp"
                 app:strokeColor="@color/catch_purple"
-                app:strokeWidth="2dp" /> <!-- SAVE BUTTON -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/saveBtn"
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:backgroundTint="@color/catch_purple"
-                android:text="Save Changes"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:visibility="gone"
-                app:cornerRadius="18dp" />
+                app:strokeWidth="2dp"
+                app:cornerRadius="18dp"/>
+
         </LinearLayout>
     </ScrollView>
 

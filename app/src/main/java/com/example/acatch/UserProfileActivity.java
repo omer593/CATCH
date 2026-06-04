@@ -41,6 +41,11 @@ public class UserProfileActivity extends AppCompatActivity {
 
     String userId;
 
+    String instagramUrl = "";
+    String facebookUrl = "";
+    String linkedinUrl = "";
+    String twitterUrl = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +85,22 @@ public class UserProfileActivity extends AppCompatActivity {
         userId = getIntent().getStringExtra("userId");
         if (userId == null && auth.getCurrentUser() != null) {
             userId = auth.getCurrentUser().getUid();
+        }
+        boolean isMyProfile =
+                auth.getCurrentUser() != null &&
+                        userId.equals(auth.getCurrentUser().getUid());
+
+        if (!isMyProfile) {
+
+            uploadImageBtn.setVisibility(View.GONE);
+
+            editBtn.setVisibility(View.GONE);
+
+            saveBtn.setVisibility(View.GONE);
+
+            nameText.setEnabled(false);
+            ageText.setEnabled(false);
+            genderText.setEnabled(false);
         }
 
         // 🔥 Bottom Navigation (החדש)
@@ -132,17 +153,20 @@ public class UserProfileActivity extends AppCompatActivity {
 
         // ✏️ Edit
         editBtn.setOnClickListener(v -> {
+
             nameText.setEnabled(true);
+            ageText.setEnabled(true);
+            genderText.setEnabled(true);
 
             instagramEdit.setVisibility(View.VISIBLE);
             facebookEdit.setVisibility(View.VISIBLE);
             linkedinEdit.setVisibility(View.VISIBLE);
             twitterEdit.setVisibility(View.VISIBLE);
 
-            instagramEdit.setText(instagramText.getText().toString());
-            facebookEdit.setText(facebookText.getText().toString());
-            linkedinEdit.setText(linkedinText.getText().toString());
-            twitterEdit.setText(twitterText.getText().toString());
+            instagramEdit.setText(instagramUrl == null ? "" : instagramUrl);
+            facebookEdit.setText(facebookUrl == null ? "" : facebookUrl);
+            linkedinEdit.setText(linkedinUrl == null ? "" : linkedinUrl);
+            twitterEdit.setText(twitterUrl == null ? "" : twitterUrl);
 
             saveBtn.setVisibility(View.VISIBLE);
         });
@@ -151,10 +175,10 @@ public class UserProfileActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(v -> saveChanges());
 
         // 🔗 לינקים
-        instagramText.setOnClickListener(v -> openLink(instagramText.getText().toString()));
-        facebookText.setOnClickListener(v -> openLink(facebookText.getText().toString()));
-        linkedinText.setOnClickListener(v -> openLink(linkedinText.getText().toString()));
-        twitterText.setOnClickListener(v -> openLink(twitterText.getText().toString()));
+        instagramText.setOnClickListener(v -> openLink(instagramUrl));
+        facebookText.setOnClickListener(v -> openLink(facebookUrl));
+        linkedinText.setOnClickListener(v -> openLink(linkedinUrl));
+        twitterText.setOnClickListener(v -> openLink(twitterUrl));
     }
 
     private void loadUserData() {
@@ -166,11 +190,38 @@ public class UserProfileActivity extends AppCompatActivity {
 
                         nameText.setText(doc.getString("name"));
 
-                        instagramText.setText(doc.getString("instagram"));
-                        facebookText.setText(doc.getString("facebook"));
-                        linkedinText.setText(doc.getString("linkedin"));
-                        twitterText.setText(doc.getString("twitter"));
+                        instagramUrl = doc.getString("instagram");
+                        facebookUrl = doc.getString("facebook");
+                        linkedinUrl = doc.getString("linkedin");
+                        twitterUrl = doc.getString("twitter");
 
+                        if (instagramUrl != null && !instagramUrl.isEmpty()) {
+                            instagramText.setText("Instagram");
+                            instagramText.setVisibility(View.VISIBLE);
+                        } else {
+                            instagramText.setVisibility(View.GONE);
+                        }
+
+                        if (facebookUrl != null && !facebookUrl.isEmpty()) {
+                            facebookText.setText("Facebook");
+                            facebookText.setVisibility(View.VISIBLE);
+                        } else {
+                            facebookText.setVisibility(View.GONE);
+                        }
+
+                        if (linkedinUrl != null && !linkedinUrl.isEmpty()) {
+                            linkedinText.setText("LinkedIn");
+                            linkedinText.setVisibility(View.VISIBLE);
+                        } else {
+                            linkedinText.setVisibility(View.GONE);
+                        }
+
+                        if (twitterUrl != null && !twitterUrl.isEmpty()) {
+                            twitterText.setText("Twitter");
+                            twitterText.setVisibility(View.VISIBLE);
+                        } else {
+                            twitterText.setVisibility(View.GONE);
+                        }
                         Long age = doc.getLong("age");
                         String gender = doc.getString("gender");
 
@@ -205,10 +256,12 @@ public class UserProfileActivity extends AppCompatActivity {
 
                     Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show();
 
-                    instagramText.setText(instagramEdit.getText().toString());
-                    facebookText.setText(facebookEdit.getText().toString());
-                    linkedinText.setText(linkedinEdit.getText().toString());
-                    twitterText.setText(twitterEdit.getText().toString());
+                    instagramUrl = instagramEdit.getText().toString();
+                    facebookUrl = facebookEdit.getText().toString();
+                    linkedinUrl = linkedinEdit.getText().toString();
+                    twitterUrl = twitterEdit.getText().toString();
+
+                    loadUserData();
 
                     instagramEdit.setVisibility(View.GONE);
                     facebookEdit.setVisibility(View.GONE);
