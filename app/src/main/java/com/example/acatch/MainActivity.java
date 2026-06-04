@@ -170,9 +170,9 @@ public class MainActivity extends AppCompatActivity {
         LocationRequest locationRequest =
                 new LocationRequest.Builder(
                         Priority.PRIORITY_HIGH_ACCURACY,
-                        5000
+                        50000
                 )
-                        .setMinUpdateIntervalMillis(5000)
+                        .setMinUpdateIntervalMillis(50000)
                         .build();
 
         locationCallback = new LocationCallback() {

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +15,7 @@ public class LoginActivity extends AppCompatActivity {
 
     EditText email, password;
     Button loginBtn, registerBtn;
+    TextView forgotPassword;
 
     FirebaseAuth mAuth;
 
@@ -39,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
         password = findViewById(R.id.password);
         loginBtn = findViewById(R.id.loginBtn);
         registerBtn = findViewById(R.id.registerBtn);
+        forgotPassword = findViewById(R.id.forgotPassword);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -136,6 +139,42 @@ public class LoginActivity extends AppCompatActivity {
 
                             Toast.makeText(
                                     this,
+                                    task.getException().getMessage(),
+                                    Toast.LENGTH_LONG
+                            ).show();
+                        }
+                    });
+        });
+        forgotPassword.setOnClickListener(v -> {
+
+            String userEmail = email.getText().toString().trim();
+
+            if (userEmail.isEmpty()) {
+
+                Toast.makeText(
+                        LoginActivity.this,
+                        "Enter your email first",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+            mAuth.sendPasswordResetEmail(userEmail)
+                    .addOnCompleteListener(task -> {
+
+                        if (task.isSuccessful()) {
+
+                            Toast.makeText(
+                                    LoginActivity.this,
+                                    "Password reset email sent",
+                                    Toast.LENGTH_LONG
+                            ).show();
+
+                        } else {
+
+                            Toast.makeText(
+                                    LoginActivity.this,
                                     task.getException().getMessage(),
                                     Toast.LENGTH_LONG
                             ).show();

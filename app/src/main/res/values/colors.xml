@@ -3,4 +3,13 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="purple_200">#BB86FC</color>
+    <color name="catch_bg">#0F0F1E</color>
+    <color name="catch_surface">#1A1A30</color>
+    <color name="catch_border">#2A2A4A</color>
+    <color name="catch_purple">#7C3AED</color>
+    <color name="catch_text">#DDDDFF</color>
+    <color name="catch_hint">#555577</color>
+    <color name="catch_link">#A78BFA</color>
+    <color name="bottom_nav_selected">#8B5CF6</color>
+    <color name="bottom_nav_unselected">#8A8A8A</color>
 </resources>
