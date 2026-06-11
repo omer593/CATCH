@@ -23,8 +23,12 @@ import java.util.Map;
 
 import android.os.Build;
 
+import android.media.MediaPlayer;
+
 public class UserProfileActivity extends AppCompatActivity {
 
+    LinearLayout profileInfoCard;
+    TextView profileNameView, profileAgeView, profileGenderView;
     EditText nameText, ageText, genderText;
     TextView instagramText, facebookText, linkedinText, twitterText;
     EditText instagramEdit, facebookEdit, linkedinEdit, twitterEdit;
@@ -79,6 +83,11 @@ public class UserProfileActivity extends AppCompatActivity {
         profileImage = findViewById(R.id.profileImage);
         uploadImageBtn = findViewById(R.id.uploadImageBtn);
 
+        profileInfoCard = findViewById(R.id.profileInfoCard);
+        profileNameView = findViewById(R.id.profileNameView);
+        profileAgeView = findViewById(R.id.profileAgeView);
+        profileGenderView = findViewById(R.id.profileGenderView);
+
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
@@ -101,6 +110,27 @@ public class UserProfileActivity extends AppCompatActivity {
             nameText.setEnabled(false);
             ageText.setEnabled(false);
             genderText.setEnabled(false);
+
+            nameText.setBackground(null);
+            ageText.setBackground(null);
+            genderText.setBackground(null);
+
+            nameText.setFocusable(false);
+            ageText.setFocusable(false);
+            genderText.setFocusable(false);
+
+            nameText.setClickable(false);
+            ageText.setClickable(false);
+            genderText.setClickable(false);
+
+            profileInfoCard.setVisibility(View.VISIBLE);
+
+            nameText.setVisibility(View.GONE);
+            ageText.setVisibility(View.GONE);
+            genderText.setVisibility(View.GONE);
+        }
+        else {
+            profileInfoCard.setVisibility(View.GONE);
         }
 
         // 🔥 Bottom Navigation (החדש)
@@ -109,6 +139,7 @@ public class UserProfileActivity extends AppCompatActivity {
         bottomNav.setSelectedItemId(R.id.nav_profile);
 
         bottomNav.setOnItemSelectedListener(item -> {
+            playClickSound();
 
             if (item.getItemId() == R.id.nav_home) {
                 startActivity(new Intent(this, MainActivity.class));
@@ -190,6 +221,22 @@ public class UserProfileActivity extends AppCompatActivity {
 
                         nameText.setText(doc.getString("name"));
 
+                        String name = doc.getString("name");
+                        Long age = doc.getLong("age");
+                        String gender = doc.getString("gender");
+
+                        if (name != null) {
+                            profileNameView.setText(name);
+                        }
+
+                        if (age != null) {
+                            profileAgeView.setText(age + " Years Old");
+                        }
+
+                        if (gender != null) {
+                            profileGenderView.setText(gender);
+                        }
+
                         instagramUrl = doc.getString("instagram");
                         facebookUrl = doc.getString("facebook");
                         linkedinUrl = doc.getString("linkedin");
@@ -222,8 +269,7 @@ public class UserProfileActivity extends AppCompatActivity {
                         } else {
                             twitterText.setVisibility(View.GONE);
                         }
-                        Long age = doc.getLong("age");
-                        String gender = doc.getString("gender");
+
 
                         if (age != null)
                             ageText.setText(String.valueOf(age));
@@ -343,6 +389,16 @@ public class UserProfileActivity extends AppCompatActivity {
                         public void onReschedule(String requestId, ErrorInfo error) {}
                     })
                     .dispatch();
+        }
+    }
+    private void playClickSound() {
+
+        MediaPlayer mp =
+                MediaPlayer.create(this, R.raw.bubble);
+
+        if (mp != null) {
+            mp.setOnCompletionListener(mediaPlayer -> mediaPlayer.release());
+            mp.start();
         }
     }
 }

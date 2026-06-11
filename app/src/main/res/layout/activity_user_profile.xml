@@ -28,6 +28,44 @@
                 android:background="@drawable/circle_bg"
                 android:clipToOutline="true"
                 android:scaleType="centerCrop" />
+            <LinearLayout
+                android:id="@+id/profileInfoCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/user_card_bg"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/profileNameView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/catch_text"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/profileAgeView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:textColor="@color/catch_text"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp"/>
+
+                <TextView
+                    android:id="@+id/profileGenderView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:textColor="@color/catch_text"
+                    android:gravity="center"
+                    android:layout_marginTop="4dp"/>
+
+            </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/uploadImageBtn"
@@ -48,6 +86,9 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/nameText"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/catch_text" />
@@ -62,6 +103,8 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/ageText"
+                    android:textSize="18sp"
+                    android:gravity="center"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
@@ -77,6 +120,8 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/genderText"
+                    android:textSize="18sp"
+                    android:gravity="center"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/catch_text" />

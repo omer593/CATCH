@@ -1,6 +1,7 @@
 package com.example.acatch;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
@@ -10,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import android.media.MediaPlayer;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -27,6 +30,28 @@ public class SettingsActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        if (auth.getCurrentUser() != null) {
+
+            String userId = auth.getCurrentUser().getUid();
+
+            db.collection("users")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener(doc -> {
+
+                        Boolean hidden = doc.getBoolean("hidden");
+
+                        if (hidden != null) {
+                            locationHidden = hidden;
+                        }
+
+                        toggleLocationBtn.setText(
+                                locationHidden ?
+                                        "Show Location" :
+                                        "Hide Location"
+                        );
+                    });
+        }
 
         changePasswordBtn = findViewById(R.id.changePasswordBtn);
         toggleLocationBtn = findViewById(R.id.toggleLocationBtn);
@@ -39,6 +64,7 @@ public class SettingsActivity extends AppCompatActivity {
         bottomNav.setSelectedItemId(R.id.nav_settings);
 
         bottomNav.setOnItemSelectedListener(item -> {
+            playClickSound();
 
             if (item.getItemId() == R.id.nav_home) {
                 startActivity(new Intent(this, MainActivity.class));
@@ -83,10 +109,22 @@ public class SettingsActivity extends AppCompatActivity {
 
             db.collection("users").document(userId)
                     .update("hidden", locationHidden)
-                    .addOnSuccessListener(aVoid ->
-                            Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show());
+                    .addOnSuccessListener(aVoid -> {
 
-            toggleLocationBtn.setText(locationHidden ? "Show Location" : "Hide Location");
+                        Toast.makeText(
+                                this,
+                                locationHidden ?
+                                        "Location Hidden" :
+                                        "Location Visible",
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        toggleLocationBtn.setText(
+                                locationHidden ?
+                                        "Show Location" :
+                                        "Hide Location"
+                        );
+                    });
         });
 
         // ❌ מחיקת משתמש
@@ -114,5 +152,15 @@ public class SettingsActivity extends AppCompatActivity {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         });
+    }
+    private void playClickSound() {
+
+        MediaPlayer mp =
+                MediaPlayer.create(this, R.raw.bubble);
+
+        if (mp != null) {
+            mp.setOnCompletionListener(mediaPlayer -> mediaPlayer.release());
+            mp.start();
+        }
     }
 }

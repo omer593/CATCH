@@ -24,6 +24,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.Priority;
 
+import android.media.MediaPlayer;
+
 import java.util.*;
 
 public class MainActivity extends AppCompatActivity {
@@ -95,16 +97,19 @@ public class MainActivity extends AppCompatActivity {
         bottomNav.setOnItemSelectedListener(item -> {
 
             if (item.getItemId() == R.id.nav_home) {
+                playClickSound();
                 return true;
             }
 
             if (item.getItemId() == R.id.nav_profile) {
+                playClickSound();
                 startActivity(new Intent(this, UserProfileActivity.class));
                 finish();
                 return true;
             }
 
             if (item.getItemId() == R.id.nav_settings) {
+                playClickSound();
                 startActivity(new Intent(this, SettingsActivity.class));
                 finish();
                 return true;
@@ -170,9 +175,9 @@ public class MainActivity extends AppCompatActivity {
         LocationRequest locationRequest =
                 new LocationRequest.Builder(
                         Priority.PRIORITY_HIGH_ACCURACY,
-                        50000
+                        2000
                 )
-                        .setMinUpdateIntervalMillis(50000)
+                        .setMinUpdateIntervalMillis(2000)
                         .build();
 
         locationCallback = new LocationCallback() {
@@ -190,8 +195,7 @@ public class MainActivity extends AppCompatActivity {
                 myLng = location.getLongitude();
 
                 saveLocation(myLat, myLng);
-
-                //getNearbyUsers(myLat, myLng);
+                getNearbyUsers(myLat, myLng);
             }
         };
 
@@ -216,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
         String userId = auth.getCurrentUser().getUid();
 
         Map<String, Object> user = new HashMap<>();
+        user.put("lastUpdate", System.currentTimeMillis());
         user.put("lat", lat);
         user.put("lng", lng);
         user.put("email", auth.getCurrentUser().getEmail());
@@ -257,6 +262,14 @@ public class MainActivity extends AppCompatActivity {
 
                 Double lat = doc.getDouble("lat");
                 Double lng = doc.getDouble("lng");
+                Long lastUpdate = doc.getLong("lastUpdate");
+
+                if (lastUpdate == null) continue;
+
+                long seconds =
+                        (System.currentTimeMillis() - lastUpdate) / 1000;
+
+                if (seconds > 10) continue;
 
                 if (lat == null || lng == null) continue;
 
@@ -297,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
 
                 double distance = distanceBetween(myLat, myLng, lat, lng);
 
-                if (distance < 1) {
+                if (distance <= 0.007) {
 
                     String imageUrl = doc.getString("imageUrl");
                     if (imageUrl == null) imageUrl = "";
@@ -345,6 +358,18 @@ public class MainActivity extends AppCompatActivity {
             getLocation();
         }
     }
+
+    private void playClickSound() {
+
+        MediaPlayer mp =
+                MediaPlayer.create(this, R.raw.bubble);
+
+        if (mp != null) {
+            mp.setOnCompletionListener(mediaPlayer -> mediaPlayer.release());
+            mp.start();
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
